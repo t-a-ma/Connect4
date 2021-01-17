@@ -14,6 +14,7 @@ gameboard::gameboard(){
     TABLE_COLS = 7;
     TABLE_ROWS = 6;
     board = new string *[TABLE_ROWS];
+    colCounter = new int [TABLE_COLS];
 
     for (int i = 0; i < TABLE_ROWS; i++){
         board[i] = new string[7];
@@ -26,9 +27,12 @@ void gameboard::initBoard(){
     for (int i = 0; i < TABLE_ROWS; i++) {
         for (int j = 0; j < TABLE_COLS; j++) {
             board[i][j] = "|   |";
-
         } 
-    }   
+    }
+    for (int i = 0; i < TABLE_COLS; i++){
+        colCounter[i] = TABLE_ROWS;
+    }
+    isFull = false;
 }
 
 
@@ -38,7 +42,6 @@ Input: None:
 Returns: None
 Changes: Prints the gameboard + current state of game to the terminal
 */
-
 void gameboard::printBoard() {
     cout << endl;
     for (int i = 0; i < TABLE_ROWS; i++) {
@@ -49,30 +52,38 @@ void gameboard::printBoard() {
     }
     for (int j = 0; j < TABLE_COLS; j++) {
             cout << "  " << j + 1 << "  ";
-        } 
+    } 
     
-    cout << endl;
     cout << endl;
 }
 
-bool gameboard::updateBoard(int col, bool player, bool *won){
+bool gameboard::updateBoard(int col, string piece, bool *won){
     //check for invalid col number( not through 1 - 7)
-    for (int i = TABLE_ROWS - 1; i >= 0; i--){
-        if (board[i][col] == "|   |"){
-            if (player) {
-                board[i][col] = "| X |";
-            } else {
-                board[i][col] = "| O |";
-            }
-            
-            *won = checkWin(i, col); 
-            return true;
-        } 
-    }
-    //if we exit the loop and don't return, unsucessful attempt - col is full
+    // this is the worst how the fuck 
+    if (colCounter[col] != 0) { //still have room
+        board[colCounter[col] - 1][col] = "| " + piece + " |";
+        *won = checkWin(colCounter[col] - 1, col);     
+        colCounter[col]--;
+        isFull = checkIfFull();
+        return true;
+    } 
+
     return false;
 }
 
+bool gameboard::checkIfFull(){
+    for (int i = 0; i < TABLE_COLS; i++) {
+        if (colCounter[i] != 0){
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool gameboard::getFull(){
+    return isFull;
+}
 
 bool gameboard::checkWin(int row, int col) {
     if (checkRow(row, col) or checkCol(row, col) or checkDiagonal(row, col)){
@@ -129,16 +140,7 @@ bool gameboard::checkCol(int row, int col){
     return false;
 }
 
-//cout << board[row][leftBound] << " " << board[row][leftBound + 1] << " " << board[row][leftBound + 2] << " " << board[row][right] << endl;
-/* cout << board[top][col] << endl;
-    cout << board[bottomBound - 2][col] << endl;
-    cout << board[bottomBound - 1][col] << endl;
-    cout << board[bottomBound][col] << endl; */
 
-
-/*
-What: Checks for connect 4 in both diagonals
-*/
 bool gameboard::checkDiagonal(int row, int col){
     if (checkRightDiagonal(row, col) or checkLeftDiagonal(row, col)){
         return true;
@@ -175,7 +177,6 @@ bool gameboard::checkRightDiagonal(int row, int col) {
         }
     } 
 
-    // the row is sucking ass ....... 
     botLH.col = col - tri_incr;
     botLH.row = row + tri_incr;
 
@@ -212,12 +213,9 @@ bool gameboard::checkLeftDiagonal(int row, int col){
             tri_incr = col;
         }
     } 
-        
     topLH.col = col - tri_incr;
     topLH.row = row - tri_incr;
-    
     tri_incr = 3;
-
     if (row + 3 >= TABLE_ROWS){
         tri_incr = TABLE_ROWS - 1 - row;
     } 
@@ -233,7 +231,6 @@ bool gameboard::checkLeftDiagonal(int row, int col){
     
     tLHBound.row = botRH.row - 3;
     tLHBound.col = botRH.col - 3;
-
 
     while (tLHBound.col >= topLH.col and tLHBound.row >= topLH.row ){
         if (board[botRH.row][botRH.col] == board[botRH.row - 1][botRH.col - 1]
@@ -251,10 +248,16 @@ bool gameboard::checkLeftDiagonal(int row, int col){
   
 }
 
+void gameboard::clearBoard(){
+    initBoard();
+}
+
+
 /*
 Destructor
 */
 gameboard::~gameboard(){ 
+    delete colCounter;
     for (int i = 0; i < TABLE_ROWS; i++) {
         delete board[i];
     }

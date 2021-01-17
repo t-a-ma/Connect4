@@ -8,24 +8,19 @@
 
 class Player {
     public:
-        Player();
+        Player(std::string piece);
         bool getTurn();
         void setTurn();
         int getScore();
         void setScore();
+        std::string getPiece();
 
     private:
         int score;
         bool turn;
+        std::string piece;
 
-
-
-
-}
-
-
-
-
+};
 
 
 #endif

@@ -2,6 +2,7 @@
 #define _CONNECT4_H_
 
 #include "gameboard.h"
+#include "player.h"
 #include <iostream>
 #include <string>
 
@@ -10,9 +11,16 @@ class Connect4 {
         int playGame();
         
     private:
-        bool player;
+        gameboard Gameboard;
         bool valid;
         bool won;
+        int rounds;
+
+        void newGame();
+        void chooseMode();
+        void playRound(Player &play1, Player &play2);
+        void switchPlayers(Player &play1, Player &play2);
+        void resetRound(Player &play1, Player &play2);
 
 
 };
