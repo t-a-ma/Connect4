@@ -6,11 +6,21 @@
 using namespace std;
 
 
-Player::Player(string wantedPiece){
+Player::Player(){
     turn = false;
     score = 0;
-    piece = wantedPiece;
 }
+
+bool Player::setPiece(string wanted_piece) {
+    bool equal_one;
+    equal_one = (wanted_piece.length() == 1) ? true : false;
+    
+    if (equal_one){
+        piece = wanted_piece;
+    }
+    
+    return equal_one;
+};
 
 bool Player::getTurn(){
     return turn;

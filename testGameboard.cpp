@@ -14,6 +14,7 @@ Also add a scoreboard (player object)
 
 int main() {
     Connect4 testGame;
+    
     testGame.playGame();
 
 }
