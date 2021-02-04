@@ -1,2 +1,9 @@
 # Connect4
-Simple Connect 4 game on a 6 by 7 board. Current functionality has two players, X and O. 
+Simple Connect 4 game on a 6 by 7 board. 
+Functionality as of 2/4 includes:
+  Ability to choose a game mode - best of 3, best of 5, single game, and endless mode 
+  Ab
+  
+To play:
+Create instance of the Connect4 object
+call .playGame()
