@@ -8,11 +8,12 @@
 
 class Player {
     public:
-        Player(std::string piece);
+        Player();
         bool getTurn();
         void setTurn();
         int getScore();
         void setScore();
+        bool setPiece(std::string wanted_piece);
         std::string getPiece();
 
     private:

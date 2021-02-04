@@ -7,8 +7,14 @@
 #include <string>
 
 /*
-Gameboard class: contains the 6x7 board 
-    methods = anything that interacts with the board (insert piece)
+Gameboard 
+overview: Contains the 6x7 board where pieces are placed
+all funtions that interact with and depend on the board
+i.e. placing a piece, check for a win
+
+members:
+
+methods
 */
 
 class gameboard {    
@@ -29,7 +35,7 @@ class gameboard {
         std::string **board;
         int *colCounter;
 
-
+        //for checking 4-in-a-row 
         struct cornerBound{
             int row;
             int col;

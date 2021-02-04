@@ -10,17 +10,54 @@ using namespace std; //don't wanna use std:: for everything
 constructor 
 */
 
-int Connect4::playGame() {
+void Connect4::initGame(){
+    cout << "WELCOME TO: CONNECT 4" << endl;
+    cout << "Would you like to customize your games pieces? y/n:";
+    char answer;
+    cin >> answer;
+    cout << endl;
+    if (answer == 'y') {
+        chooseGamePiece();
+    } else {
+        play1.setPiece("X");
+        play2.setPiece("O");    
+    }
+
     chooseMode();
-    Player play1("X"); //can customize your piece! lol leave that for later
-    Player play2("O");
- 
+    
+}
+
+void Connect4::chooseGamePiece(){
+    //two of the same things done twice 
+    cout << "Enter a one character-long piece for Player 1:";
+    string player_piece;
+    cin >> player_piece;
+    
+    while(!play1.setPiece(player_piece)){
+        cout << "Too long! Piece must only be one letter. Try again and enter a new piece: ";
+        cin >> player_piece;
+    }
+    
+    cout << "Enter a one character-long piece for Player 2:";
+    cin >> player_piece;
+    
+    while(!play2.setPiece(player_piece)){
+        cout << "Too long! Piece must only be one letter. Try again and enter a new piece: ";
+        cin >> player_piece;
+    }   
+}
+
+
+int Connect4::playGame() {
+    initGame();
+    
     while (rounds > 0){
-        playRound(play1, play2);
+        playRound();
+        // this all happened 
         cout << "Player 1 score: " << play1.getScore() << "     ";
         cout << "Player 2 score: " << play2.getScore() << "     " << endl;
         rounds--;
-        resetRound(play1, play2); // wonder if I should make the players class members
+        resetRound(); // wonder if I should make the players class members
     }
     
     if (play1.getScore() > play2.getScore()) {
@@ -34,26 +71,25 @@ int Connect4::playGame() {
     return 0;
 }
 
-void Connect4::playRound(Player &play1, Player &play2){
+void Connect4::playRound(){
     int colNum = 0;
-    Player *currPlayer;
+    won = false;
     play1.setTurn();
     Gameboard.printBoard();
 
     while (!won){
         if (play1.getTurn()){
-            cout << "PLAYER 1 (X's): It is your turn." << endl;
+            cout << "PLAYER 1 (" << play1.getPiece() << "'s): It is your turn." << endl;
             currPlayer = &play1;
         } else {
-            cout << "PLAYER 2 (O's): It is your turn" << endl;
+            cout << "PLAYER 2 (" << play2.getPiece() << "'s): It is your turn." << endl;
             currPlayer = &play2;
         }
 
         cout << "Enter the column number to place your piece: ";
         cin >> colNum;
         cout << endl;
-
-        // so something is going wrong here? 
+        
         valid = Gameboard.updateBoard(colNum - 1, currPlayer->getPiece(), &won);
 
         while (!valid){
@@ -61,7 +97,7 @@ void Connect4::playRound(Player &play1, Player &play2){
             cin >> colNum;
             cout << endl;
             valid = Gameboard.updateBoard(colNum - 1, currPlayer->getPiece(), &won);
-            // forgot to add functionality about if entire board is filled and to call a draw when that happens
+            
         }
 
         Gameboard.printBoard();
@@ -72,24 +108,23 @@ void Connect4::playRound(Player &play1, Player &play2){
                 cout << "PLAYER 2 WINS THIS ROUND" << endl;
             }
             currPlayer->setScore();
-            //print current score is probably a good idea
+            
             return;
         } else if (Gameboard.getFull()) {
             cout << "IT'S A TIE" << endl;
             return;
         }
-        switchPlayers(play1, play2);
+        switchPlayers();
     }
 }
 
 
-void Connect4::switchPlayers(Player &play1, Player &play2){
+void Connect4::switchPlayers(){
     play1.setTurn();
     play2.setTurn();
 }
 
 void Connect4::chooseMode(){
-    cout << "WELCOME TO: CONNECT 4" << endl;
     cout << "CHOOSE A MODE (by entering the corresponding number):" << endl;
     cout << "1. One round       " << "2. Best of Three       " << "3. Best of Five       " << "4. ENDLESS MODE" << endl;
     int mode;
@@ -103,12 +138,13 @@ void Connect4::chooseMode(){
     }else if (mode == 4){
         rounds = -1;
     }
+    
 }
 
 /*
 
 */
-void Connect4::resetRound(Player &play1, Player &play2){
+void Connect4::resetRound(){
     if (play1.getTurn()){   play1.setTurn();    }
     if (play2.getTurn()){   play2.setTurn();    }
 

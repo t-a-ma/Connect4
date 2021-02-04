@@ -6,6 +6,10 @@
 #include <iostream>
 #include <string>
 
+/*
+
+*/
+
 class Connect4 {
     public:
         int playGame();
@@ -15,12 +19,17 @@ class Connect4 {
         bool valid;
         bool won;
         int rounds;
+        Player play1;
+        Player play2;
+        Player *currPlayer;
 
+        void initGame();
+        void chooseGamePiece();
         void newGame();
         void chooseMode();
-        void playRound(Player &play1, Player &play2);
-        void switchPlayers(Player &play1, Player &play2);
-        void resetRound(Player &play1, Player &play2);
+        void playRound();
+        void switchPlayers();
+        void resetRound();
 
 
 };
