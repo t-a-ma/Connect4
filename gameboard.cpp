@@ -14,6 +14,7 @@ gameboard::gameboard(){
     TABLE_COLS = 7;
     TABLE_ROWS = 6;
     board = new string *[TABLE_ROWS];
+    colCounter = new int [TABLE_COLS];
 
     for (int i = 0; i < TABLE_ROWS; i++){
         board[i] = new string[7];
@@ -22,23 +23,25 @@ gameboard::gameboard(){
 
 };
 
+/*
+initializes the board; adds the empty space 
+*/
 void gameboard::initBoard(){
     for (int i = 0; i < TABLE_ROWS; i++) {
         for (int j = 0; j < TABLE_COLS; j++) {
             board[i][j] = "|   |";
-
         } 
-    }   
+    }
+    for (int i = 0; i < TABLE_COLS; i++){
+        colCounter[i] = TABLE_ROWS;
+    }
+    isFull = false;
 }
 
 
 /*
-What: Prints out the gameboard
-Input: None:
-Returns: None
-Changes: Prints the gameboard + current state of game to the terminal
+What: Prints out the gameboard and current state of game to terminal
 */
-
 void gameboard::printBoard() {
     cout << endl;
     for (int i = 0; i < TABLE_ROWS; i++) {
@@ -49,31 +52,50 @@ void gameboard::printBoard() {
     }
     for (int j = 0; j < TABLE_COLS; j++) {
             cout << "  " << j + 1 << "  ";
-        } 
+    } 
     
-    cout << endl;
     cout << endl;
 }
 
-bool gameboard::updateBoard(int col, bool player, bool *won){
-    //check for invalid col number( not through 1 - 7)
-    for (int i = TABLE_ROWS - 1; i >= 0; i--){
-        if (board[i][col] == "|   |"){
-            if (player) {
-                board[i][col] = "| X |";
-            } else {
-                board[i][col] = "| O |";
-            }
-            
-            *won = checkWin(i, col); 
-            return true;
-        } 
+bool gameboard::updateBoard(int col, string piece, bool *won){
+    if ((col < 0) or (col > 6)) {
+         return false;
     }
-    //if we exit the loop and don't return, unsucessful attempt - col is full
+    
+    if (colCounter[col] != 0) {
+        board[colCounter[col] - 1][col] = "| " + piece + " |";
+        *won = checkWin(colCounter[col] - 1, col);     
+        colCounter[col]--;
+        isFull = checkIfFull();
+        return true;
+    } 
+
     return false;
 }
 
+/*
 
+*/
+bool gameboard::checkIfFull(){
+    for (int i = 0; i < TABLE_COLS; i++) {
+        if (colCounter[i] != 0){
+            return false;
+        }
+    }
+    return true;
+}
+
+/*
+What: Returns true if the entire board is full 
+*/
+bool gameboard::getFull(){
+    return isFull;
+}
+
+/*
+What: after a piece is placed on the board, check if that
+creates a connect4 (4 in a row, column, or diagonally)
+*/
 bool gameboard::checkWin(int row, int col) {
     if (checkRow(row, col) or checkCol(row, col) or checkDiagonal(row, col)){
         return true;
@@ -83,7 +105,7 @@ bool gameboard::checkWin(int row, int col) {
 }
 
 /*
-Checks if there is a connect4 in a row
+What: Checks if there are four of the same pieces in a row
 */
 bool gameboard::checkRow(int row, int col){
     int leftBound;
@@ -91,7 +113,6 @@ bool gameboard::checkRow(int row, int col){
     int rightBound;
     rightBound = ((col + 3) <= TABLE_COLS) ? (col + 3) : 6;
     int right = leftBound + 3;
-    // bounds are in place 
     //check sliding windows of four around int col 
     while (right <= rightBound){
         if ((board[row][leftBound] == board[row][leftBound + 1]) 
@@ -108,7 +129,6 @@ bool gameboard::checkRow(int row, int col){
 
 /*
 What: Checks for connect 4 in a column
-
 */
 bool gameboard::checkCol(int row, int col){
     int topBound, bottomBound; //top meaning 0 row 
@@ -129,16 +149,7 @@ bool gameboard::checkCol(int row, int col){
     return false;
 }
 
-//cout << board[row][leftBound] << " " << board[row][leftBound + 1] << " " << board[row][leftBound + 2] << " " << board[row][right] << endl;
-/* cout << board[top][col] << endl;
-    cout << board[bottomBound - 2][col] << endl;
-    cout << board[bottomBound - 1][col] << endl;
-    cout << board[bottomBound][col] << endl; */
 
-
-/*
-What: Checks for connect 4 in both diagonals
-*/
 bool gameboard::checkDiagonal(int row, int col){
     if (checkRightDiagonal(row, col) or checkLeftDiagonal(row, col)){
         return true;
@@ -148,7 +159,11 @@ bool gameboard::checkDiagonal(int row, int col){
 
 bool gameboard::checkRightDiagonal(int row, int col) {
     cornerBound topRH, botLH, tRHBound;
-    //triangle things. the bounds are dependent on each other
+    
+    /*checks how many cols right we need to check (i.e)
+    if piece is placed in col 5, only need to check one col over (col 6)
+    and one row up
+    */
     int tri_incr = 3;
     if (row - 3 < 0){
         tri_incr = row;
@@ -175,7 +190,6 @@ bool gameboard::checkRightDiagonal(int row, int col) {
         }
     } 
 
-    // the row is sucking ass ....... 
     botLH.col = col - tri_incr;
     botLH.row = row + tri_incr;
 
@@ -199,10 +213,7 @@ bool gameboard::checkRightDiagonal(int row, int col) {
 
 bool gameboard::checkLeftDiagonal(int row, int col){
     cornerBound botRH, topLH, tLHBound;
-    //triangle things. the bounds are dependent on each other
     int tri_incr = 3;
-    //bottom RH first -- +row, +col
-    //top LH -- -row, -col
     if (row - 3 < 0){
         tri_incr = row;
     } 
@@ -212,12 +223,9 @@ bool gameboard::checkLeftDiagonal(int row, int col){
             tri_incr = col;
         }
     } 
-        
     topLH.col = col - tri_incr;
     topLH.row = row - tri_incr;
-    
     tri_incr = 3;
-
     if (row + 3 >= TABLE_ROWS){
         tri_incr = TABLE_ROWS - 1 - row;
     } 
@@ -233,7 +241,6 @@ bool gameboard::checkLeftDiagonal(int row, int col){
     
     tLHBound.row = botRH.row - 3;
     tLHBound.col = botRH.col - 3;
-
 
     while (tLHBound.col >= topLH.col and tLHBound.row >= topLH.row ){
         if (board[botRH.row][botRH.col] == board[botRH.row - 1][botRH.col - 1]
@@ -252,9 +259,18 @@ bool gameboard::checkLeftDiagonal(int row, int col){
 }
 
 /*
-Destructor
+What: Clears gameboard to be empty
+*/
+void gameboard::clearBoard(){
+    initBoard();
+}
+
+
+/*
+Destructor: Frees the memory used by the gameboard 
 */
 gameboard::~gameboard(){ 
+    delete colCounter;
     for (int i = 0; i < TABLE_ROWS; i++) {
         delete board[i];
     }
